@@ -8,12 +8,10 @@ import org.mongodb.scala.{Document, MongoClient, MongoCollection, MongoDatabase}
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-object DbConfig extends App with Directives with MyJsonProtocol with MyXMLSupport {
-  val host = "0.0.0.0"
-  val port = 9000
+object DbConfig  {
   implicit val system = ActorSystem("HelloWorld")
   implicit val executor: ExecutionContext = system.dispatcher
-  val mongoClient: MongoClient = if (args.isEmpty) MongoClient() else MongoClient(args.head)
+  val mongoClient: MongoClient = MongoClient()
   val database: MongoDatabase = mongoClient.getDatabase("mydb")
   val collection: MongoCollection[Document] = database.getCollection("test")
   collection.drop()
