@@ -5,12 +5,11 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity}
 import akka.http.scaladsl.server.{Directives, Route}
 import com.bridgelabz.greetingapp.DbConfig.{sendRequest, system}
-
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 object Routes extends App with Directives with MyJsonProtocol with MyXMLSupport{
-  val host = "0.0.0.0"
+  val host = sys.env.getOrElse("HOST_ADDRESS", "0.0.0.0")
   val port = 9000
   implicit val executor: ExecutionContext = system.dispatcher
   def route : Route =
