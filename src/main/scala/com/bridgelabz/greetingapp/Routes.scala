@@ -1,18 +1,26 @@
 package com.bridgelabz.greetingapp
 
 import akka.Done
+import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.http.scaladsl.server.{Directives, ExceptionHandler, Route}
-import com.bridgelabz.greetingapp.DbConfig.{sendRequest, system}
+import akka.pattern.Patterns
+import akka.util.ByteString
+import com.bridgelabz.greetingapp.DbConfig.{getJson, sendRequest, system}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
+import scala.xml.Document
 
 object Routes extends App with Directives with MyJsonProtocol with MyXMLSupport{
   val host = sys.env.getOrElse("HOST_ADDRESS", "0.0.0.0")
   val port = 9000
+  implicit val system = ActorSystem("AS")
+  var actor1 = system.actorOf(Props[GreetingActor],"actor1")
   implicit val executor: ExecutionContext = system.dispatcher
+   getJson()
   // Handling Arithmetic and Null Pointer Exceptions
   val myExceptionHandler = ExceptionHandler {
     case _: ArithmeticException =>
@@ -45,13 +53,16 @@ object Routes extends App with Directives with MyJsonProtocol with MyXMLSupport{
         // get request to fetch data
         get {
           concat(
-            path("getJson"){
-              complete(Greeting("Holaaa Amigo","Pablo"))
+            path("getJson") {
+              val greetingSeqFuture: Future[Seq[Greeting]] = MongoDAL.fetchAllGreetings()
+              complete(greetingSeqFuture)
             },
             path("getXML"){
+              val greetingSeqFuture: Future[Seq[Greeting]] = MongoDAL.fetchAllGreetings()
+              complete(greetingSeqFuture)
               complete(HttpEntity(
                 ContentTypes.`text/xml(UTF-8)`,
-                "{\"msg\":\"Hiiiiii\",\"name\":\"Ruchirrrr\"}"
+                greetingSeqFuture
               ))
             }
           )
