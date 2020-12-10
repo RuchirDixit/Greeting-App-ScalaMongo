@@ -5,18 +5,14 @@ import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
 import akka.http.scaladsl.server.{Directives, ExceptionHandler, Route}
-import akka.pattern.Patterns
-import akka.util.ByteString
-import com.bridgelabz.greetingapp.DbConfig.{getJson, sendRequest, system}
-
-import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
+import com.bridgelabz.greetingapp.DbConfig.{getJson, sendRequest}
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
-import scala.xml.Document
+import com.fasterxml.jackson.databind.ObjectMapper
 
 object Routes extends App with Directives with MyJsonProtocol with MyXMLSupport{
-  val host = sys.env.getOrElse("HOST_ADDRESS", "0.0.0.0")
-  val port = 9000
+  val host = sys.env("Host")
+  val port = sys.env("Port_number")
   implicit val system = ActorSystem("AS")
   var actor1 = system.actorOf(Props[GreetingActor],"actor1")
   implicit val executor: ExecutionContext = system.dispatcher
@@ -59,11 +55,20 @@ object Routes extends App with Directives with MyJsonProtocol with MyXMLSupport{
             },
             path("getXML"){
               val greetingSeqFuture: Future[Seq[Greeting]] = MongoDAL.fetchAllGreetings()
-              complete(greetingSeqFuture)
-              complete(HttpEntity(
-                ContentTypes.`text/xml(UTF-8)`,
-                greetingSeqFuture
-              ))
+              complete(<xsl:template name="xsl:initial-template">
+                <greetings>
+                  <xsl:for-each select="parse-json($input)?*">
+                    <greeting msg="{?msg}" name="{?name}"/>
+                  </xsl:for-each>
+                </greetings>
+              </xsl:template>)
+//              val greetingSeqFuture: Future[Seq[Greeting]] = MongoDAL.fetchAllGreetings()
+//              val jsonMapper = new ObjectMapper
+//              val greet = jsonMapper.readValue(greetingSeqFuture,classOf[Greeting])
+//              complete(HttpEntity(
+//                ContentTypes.`text/xml(UTF-8)`,
+//                ""
+//              ))
             }
           )
         }
