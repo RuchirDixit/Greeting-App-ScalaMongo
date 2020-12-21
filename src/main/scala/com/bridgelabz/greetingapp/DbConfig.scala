@@ -23,7 +23,7 @@ object DbConfig  {
    * @param greet : Data to be added into database
    * @return : Future[Done]
    */
-  def sendRequest(greet: Greeting) = {
+  def sendRequest(greet: Greeting) : Future[Done.type] = {
     val doc: Document = Document("msg" -> greet.msg, "name" -> greet.name)
     val bindFuture = collection.insertOne(doc).toFuture()
     bindFuture.onComplete {
@@ -31,5 +31,11 @@ object DbConfig  {
       case Failure(exception) => println(exception)
     }
     Future{Done}
+  }
+
+  // returns data in form of Future from mongodb database
+  def getJson() : Future[Seq[Document]] = {
+    val future = collection.find().toFuture()
+    future
   }
 }
