@@ -1,13 +1,10 @@
 package com.bridgelabz.greetingapp
-import akka.Done
-import com.bridgelabz.greetingapp.DbConfig.collection
 import org.mongodb.scala.bson.codecs.Macros
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
 import org.bson.codecs.configuration.CodecRegistries
-import org.mongodb.scala.{Document, MongoClient, MongoCollection, MongoDatabase}
+import org.mongodb.scala.{FindObservable, MongoClient, MongoCollection, MongoDatabase}
 
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
 
 object MongoDAL {
 
@@ -28,7 +25,9 @@ object MongoDAL {
   val greetingCollection: MongoCollection[Greeting] =
     mongoDatabase.getCollection[Greeting]("test")
 
-  def fetchAllGreetings() = {
+
+  // method to fetch entire data from mongodb database
+  def fetchAllGreetings() : Future[Seq[Greeting]] = {
     greetingCollection.find().toFuture()
   }
 }
