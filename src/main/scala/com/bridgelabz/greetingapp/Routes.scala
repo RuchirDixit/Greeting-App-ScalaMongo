@@ -11,7 +11,7 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
 import com.thoughtworks.xstream._
 import com.thoughtworks.xstream.io.xml.DomDriver
-object Routes extends App with Directives with MyJsonProtocol with MyXMLSupport{
+object Routes extends App with Directives with MyJsonProtocol{
   val host = sys.env("Host")
   val port = sys.env("Port_number").toInt
   implicit val system = ActorSystem("AS")
