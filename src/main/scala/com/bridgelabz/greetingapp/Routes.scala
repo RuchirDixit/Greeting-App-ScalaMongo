@@ -3,20 +3,20 @@ package com.bridgelabz.greetingapp
 import akka.Done
 import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse}
+import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.{Directives, ExceptionHandler, Route}
-import com.bridgelabz.greetingapp.DbConfig.{getJson, sendRequest}
-import scala.concurrent.{ExecutionContext, Future}
+import com.bridgelabz.greetingapp.DbConfig.sendRequest
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
-import com.fasterxml.jackson.databind.ObjectMapper
-
+import com.thoughtworks.xstream._
+import com.thoughtworks.xstream.io.xml.DomDriver
 object Routes extends App with Directives with MyJsonProtocol with MyXMLSupport{
   val host = sys.env("Host")
-  val port = sys.env("Port_number")
+  val port = sys.env("Port_number").toInt
   implicit val system = ActorSystem("AS")
   var actor1 = system.actorOf(Props[GreetingActor],"actor1")
   implicit val executor: ExecutionContext = system.dispatcher
-   getJson()
   // Handling Arithmetic and Null Pointer Exceptions
   val myExceptionHandler = ExceptionHandler {
     case _: ArithmeticException =>
@@ -54,21 +54,11 @@ object Routes extends App with Directives with MyJsonProtocol with MyXMLSupport{
               complete(greetingSeqFuture)
             },
             path("getXML"){
-              val greetingSeqFuture: Future[Seq[Greeting]] = MongoDAL.fetchAllGreetings()
-              complete(<xsl:template name="xsl:initial-template">
-                <greetings>
-                  <xsl:for-each select="parse-json($input)?*">
-                    <greeting msg="{?msg}" name="{?name}"/>
-                  </xsl:for-each>
-                </greetings>
-              </xsl:template>)
-//              val greetingSeqFuture: Future[Seq[Greeting]] = MongoDAL.fetchAllGreetings()
-//              val jsonMapper = new ObjectMapper
-//              val greet = jsonMapper.readValue(greetingSeqFuture,classOf[Greeting])
-//              complete(HttpEntity(
-//                ContentTypes.`text/xml(UTF-8)`,
-//                ""
-//              ))
+              val greetingSeqFuture = MongoDAL.fetchAllGreetings()
+              val data = Await.result(greetingSeqFuture,10.seconds)
+              val xStream = new XStream(new DomDriver())
+              val xml = xStream.toXML(data)
+              complete(xml)
             }
           )
         }
