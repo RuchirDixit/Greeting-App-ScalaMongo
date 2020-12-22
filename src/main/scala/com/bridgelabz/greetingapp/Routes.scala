@@ -11,7 +11,8 @@ import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
 import com.thoughtworks.xstream._
 import com.thoughtworks.xstream.io.xml.DomDriver
-object Routes extends App with Directives with MyJsonProtocol{
+import com.typesafe.scalalogging.LazyLogging
+object Routes extends App with Directives with MyJsonProtocol with LazyLogging{
   val host = sys.env("Host")
   val port = sys.env("Port_number").toInt
   implicit val system = ActorSystem("AS")
@@ -58,6 +59,7 @@ object Routes extends App with Directives with MyJsonProtocol{
               val data = Await.result(greetingSeqFuture,10.seconds)
               val xStream = new XStream(new DomDriver())
               val xml = xStream.toXML(data)
+              logger.info("XML data:" + xml)
               complete(xml)
             }
           )
