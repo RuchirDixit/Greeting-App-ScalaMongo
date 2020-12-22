@@ -2,13 +2,14 @@ package com.bridgelabz.greetingapp
 
 import akka.Done
 import akka.actor.ActorSystem
-import akka.http.scaladsl.server.Directives
+import com.typesafe.scalalogging.LazyLogging
 import scala.concurrent.Future
 import org.mongodb.scala.{Document, MongoClient, MongoCollection, MongoDatabase}
+
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-object DbConfig  {
+object DbConfig extends LazyLogging {
   implicit val system = ActorSystem("HelloWorld")
   implicit val executor: ExecutionContext = system.dispatcher
   val mongoClient: MongoClient = MongoClient()
@@ -24,6 +25,7 @@ object DbConfig  {
    * @return : Future[Done]
    */
   def sendRequest(greet: Greeting) : Future[Done.type] = {
+    logger.info("Sending request with object: " + greet)
     val doc: Document = Document("msg" -> greet.msg, "name" -> greet.name)
     val bindFuture = collection.insertOne(doc).toFuture()
     bindFuture.onComplete {
