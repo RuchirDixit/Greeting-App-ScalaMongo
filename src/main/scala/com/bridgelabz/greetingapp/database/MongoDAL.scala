@@ -20,9 +20,18 @@ import org.mongodb.scala.bson.codecs.Macros
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
 import org.bson.codecs.configuration.CodecRegistries
 import org.mongodb.scala.{MongoClient, MongoCollection, MongoDatabase}
-import scala.concurrent.Future
+
+import scala.concurrent.{ExecutionContext, Future}
 
 object MongoDAL {
+
+  implicit val system = ActorSystem("HelloWorld")
+  implicit val executor: ExecutionContext = system.dispatcher
+  // Getting mongodb database
+  val database: MongoDatabase = mongoClient.getDatabase("mydb")
+  // Getting mongodb collection
+  val collection: MongoCollection[Document] = database.getCollection("test")
+  collection.drop()
 
   val greetingCodecProvider = Macros.createCodecProvider[Greeting]()
 
@@ -32,12 +41,13 @@ object MongoDAL {
   )
 
   val mongoClient: MongoClient = MongoClient()
-
+  // Getting mongodb database
   val mongoDatabase: MongoDatabase =
     mongoClient
       .getDatabase("mydb")
       .withCodecRegistry(codecRegistry)
 
+  // Getting mongodb collection
   val greetingCollection: MongoCollection[Greeting] =
     mongoDatabase.getCollection[Greeting]("test")
 
