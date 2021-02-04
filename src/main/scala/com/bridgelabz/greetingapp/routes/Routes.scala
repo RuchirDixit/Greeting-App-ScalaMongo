@@ -22,7 +22,6 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, ExceptionHandler, Route}
 import com.bridgelabz.greetingapp.DbConfig.sendRequest
 import com.bridgelabz.greetingapp.caseclasses.MyJsonProtocol
-
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -30,8 +29,8 @@ import com.thoughtworks.xstream._
 import com.thoughtworks.xstream.io.xml.DomDriver
 import com.typesafe.scalalogging.LazyLogging
 object Routes extends App with Directives with MyJsonProtocol with LazyLogging{
-  val host = sys.env("Host")
-  val port = sys.env("Port_number").toInt
+  private val host = sys.env("Host")
+  private val port = sys.env("Port_number").toInt
   implicit val system = ActorSystem("AS")
   var actor1 = system.actorOf(Props[GreetingActor],"actor1")
   implicit val executor: ExecutionContext = system.dispatcher
@@ -48,7 +47,11 @@ object Routes extends App with Directives with MyJsonProtocol with LazyLogging{
         complete(HttpResponse(StatusCodes.BadRequest, entity = "Null value found!!!"))
       }
   }
-  // Define routing for path /message or /getJson ; /getXML
+  /**
+   * for saving messages and name
+   * @input : It accepts message and name from body
+   * @Return :  Data inserted on successful insertion
+   */
   def route : Route =
     handleExceptions(myExceptionHandler){
       concat(
@@ -57,20 +60,29 @@ object Routes extends App with Directives with MyJsonProtocol with LazyLogging{
           path("message") {
             entity(as[Greeting]) {
               emp =>
-                val request: Future[Done] = sendRequest(emp)
+                val request: Future[Done] = DatabaseService.sendRequest(emp)
                 onComplete(request) {
                   _ => complete("Data Inserted!")
                 }
             }
           }
         },
-        // get request to fetch data
+        /**
+         * for getting messages in JSON format
+         * @input : Fetches all the messages saved
+         * @Return : Displays all the messages in json format
+         */
         get {
           concat(
             path("getJson") {
               val greetingSeqFuture: Future[Seq[Greeting]] = MongoDAL.fetchAllGreetings()
               complete(greetingSeqFuture)
             },
+            /**
+             * for getting messages in XML format
+             * @input : Fetches all the messages saved
+             * @Return : Displays all the messages in XML format
+             */
             path("getXML"){
               val greetingSeqFuture = MongoDAL.fetchAllGreetings()
               val data = Await.result(greetingSeqFuture,10.seconds)
