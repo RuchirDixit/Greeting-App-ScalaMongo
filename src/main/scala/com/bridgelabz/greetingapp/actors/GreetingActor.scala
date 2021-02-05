@@ -16,7 +16,7 @@
 package com.bridgelabz.greetingapp.actors
 
 import akka.actor.{Actor, ActorLogging}
-import com.bridgelabz.greetingapp.DbConfig.getJson
+import com.bridgelabz.greetingapp.database.DatabaseService.getJson
 
 class GreetingActor extends Actor with ActorLogging {
   override def receive: Receive = {
