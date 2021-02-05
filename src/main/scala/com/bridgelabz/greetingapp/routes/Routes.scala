@@ -21,7 +21,10 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, ExceptionHandler, Route}
 import com.bridgelabz.greetingapp.DbConfig.sendRequest
-import com.bridgelabz.greetingapp.caseclasses.MyJsonProtocol
+import com.bridgelabz.greetingapp.actors.GreetingActor
+import com.bridgelabz.greetingapp.caseclasses.{Greeting, MyJsonProtocol}
+import com.bridgelabz.greetingapp.database.{DatabaseService, MongoDAL}
+
 import scala.concurrent.duration._
 import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.util.{Failure, Success}
@@ -31,8 +34,8 @@ import com.typesafe.scalalogging.LazyLogging
 object Routes extends App with Directives with MyJsonProtocol with LazyLogging{
   private val host = sys.env("Host")
   private val port = sys.env("Port_number").toInt
-  implicit val system = ActorSystem("AS")
-  var actor1 = system.actorOf(Props[GreetingActor],"actor1")
+  implicit val system = ActorSystem("GreetingApp")
+  var greetingActor = system.actorOf(Props[GreetingActor],"greetingActor")
   implicit val executor: ExecutionContext = system.dispatcher
   // Handling Arithmetic and Null Pointer Exceptions
   val myExceptionHandler = ExceptionHandler {
@@ -46,16 +49,20 @@ object Routes extends App with Directives with MyJsonProtocol with LazyLogging{
         logger.error(s"Request to $uri could not be handled normally")
         complete(HttpResponse(StatusCodes.BadRequest, entity = "Null value found!!!"))
       }
+    case exception: Exception =>
+      extractUri { uri =>
+        logger.error(s"Request to $uri could not be handled normally")
+        complete(HttpResponse(StatusCodes.BadRequest, entity = exception))
+      }
   }
-  /**
-   * for saving messages and name
-   * @input : It accepts message and name from body
-   * @Return :  Data inserted on successful insertion
-   */
   def route : Route =
     handleExceptions(myExceptionHandler){
       concat(
-        // post method since we need to add data
+        /**
+         * for saving messages and name
+         * @input : It accepts message and name from body
+         * @Return :  Data inserted on successful insertion
+         */
         post {
           path("message") {
             entity(as[Greeting]) {
@@ -85,11 +92,13 @@ object Routes extends App with Directives with MyJsonProtocol with LazyLogging{
              */
             path("getXML"){
               val greetingSeqFuture = MongoDAL.fetchAllGreetings()
-              val data = Await.result(greetingSeqFuture,10.seconds)
-              val xStream = new XStream(new DomDriver())
-              val xml = xStream.toXML(data)
-              logger.info("XML data:" + xml)
-              complete(xml)
+              onComplete(greetingSeqFuture) {
+                case Success(data) =>
+                  val xStream = new XStream(new DomDriver())
+                  val xml = xStream.toXML(data)
+                  logger.info("XML data:" + xml)
+                  complete(xml)
+              }
             }
           )
         }
