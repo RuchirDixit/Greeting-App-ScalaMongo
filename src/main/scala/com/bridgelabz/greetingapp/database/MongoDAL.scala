@@ -15,11 +15,12 @@
 // limitations under the License.
 package com.bridgelabz.greetingapp.database
 
+import akka.actor.ActorSystem
 import com.bridgelabz.greetingapp.caseclasses.Greeting
 import org.mongodb.scala.bson.codecs.Macros
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
 import org.bson.codecs.configuration.CodecRegistries
-import org.mongodb.scala.{MongoClient, MongoCollection, MongoDatabase}
+import org.mongodb.scala.{Document, MongoClient, MongoCollection, MongoDatabase}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -27,10 +28,12 @@ object MongoDAL {
 
   implicit val system = ActorSystem("HelloWorld")
   implicit val executor: ExecutionContext = system.dispatcher
+  // MongoClient
+  val mongoClient: MongoClient = MongoClient()
   // Getting mongodb database
-  val database: MongoDatabase = mongoClient.getDatabase("mydb")
+  val database: MongoDatabase = mongoClient.getDatabase(sys.env("mydb"))
   // Getting mongodb collection
-  val collection: MongoCollection[Document] = database.getCollection("test")
+  val collection: MongoCollection[Document] = database.getCollection(sys.env("test"))
   collection.drop()
 
   val greetingCodecProvider = Macros.createCodecProvider[Greeting]()
@@ -40,19 +43,21 @@ object MongoDAL {
     DEFAULT_CODEC_REGISTRY
   )
 
-  val mongoClient: MongoClient = MongoClient()
   // Getting mongodb database
   val mongoDatabase: MongoDatabase =
     mongoClient
-      .getDatabase("mydb")
+      .getDatabase(sys.env("mydb"))
       .withCodecRegistry(codecRegistry)
 
   // Getting mongodb collection
   val greetingCollection: MongoCollection[Greeting] =
-    mongoDatabase.getCollection[Greeting]("test")
+    mongoDatabase.getCollection[Greeting](sys.env("test"))
 
 
-  // method to fetch entire data from mongodb database
+  /**
+   * method to fetch all greetings
+   * @return : Future[Seq[Greeting]]
+   */
   def fetchAllGreetings() : Future[Seq[Greeting]] = {
     greetingCollection.find().toFuture()
   }
