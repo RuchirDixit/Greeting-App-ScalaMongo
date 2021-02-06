@@ -20,7 +20,6 @@ import akka.actor.{ActorSystem, Props}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, ExceptionHandler, Route}
-import com.bridgelabz.greetingapp.DbConfig.sendRequest
 import com.bridgelabz.greetingapp.actors.GreetingActor
 import com.bridgelabz.greetingapp.caseclasses.{Greeting, MyJsonProtocol}
 import com.bridgelabz.greetingapp.database.{DatabaseService, MongoDAL}
@@ -52,7 +51,7 @@ object Routes extends App with Directives with MyJsonProtocol with LazyLogging{
     case exception: Exception =>
       extractUri { uri =>
         logger.error(s"Request to $uri could not be handled normally")
-        complete(HttpResponse(StatusCodes.BadRequest, entity = exception))
+        complete(HttpResponse(StatusCodes.BadRequest, entity = exception.toString))
       }
   }
   def route : Route =
