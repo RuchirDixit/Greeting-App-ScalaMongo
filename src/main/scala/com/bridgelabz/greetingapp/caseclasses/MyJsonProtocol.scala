@@ -16,7 +16,6 @@
 package com.bridgelabz.greetingapp.caseclasses
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
-import com.bridgelabz.greetingapp.Greeting
 import spray.json.DefaultJsonProtocol
 
 // To convert object into json format
