@@ -17,6 +17,7 @@ package com.bridgelabz.greetingapp.database
 
 import akka.Done
 import com.bridgelabz.greetingapp.Routes.system
+import com.bridgelabz.greetingapp.actors.ActorSystemFactory
 import com.bridgelabz.greetingapp.caseclasses.Greeting
 import com.typesafe.scalalogging.LazyLogging
 import org.mongodb.scala.bson.collection.immutable.Document
@@ -24,6 +25,7 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext
 object DatabaseService extends LazyLogging {
+  val system = ActorSystemFactory.system
   implicit val executor: ExecutionContext = system.dispatcher
   /**
    * Adds message and name to database and Future[Done]
