@@ -19,15 +19,22 @@ version := "0.1"
 
 scalaVersion := "2.13.1"
 
+coverageExcludedPackages := "com\\.bridgelabz\\.caseclasses\\.*"
+
 libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-actor" % "2.6.8",
   "com.typesafe.akka" %% "akka-http" % "10.2.1",
   "com.typesafe.akka" %% "akka-stream" % "2.6.8",
+  "com.typesafe.akka" %% "akka-http-testkit" % "10.2.1" % Test,
   "ch.rasc" % "bsoncodec" % "1.0.1",
   "org.mongodb.scala" %% "mongo-scala-driver" % "2.7.0",
   "com.typesafe.akka" %% "akka-http-spray-json" % "10.2.1",
   "com.typesafe.akka" %% "akka-http-xml" % "10.2.1",
   "com.thoughtworks.xstream" % "xstream" % "1.4.11.1",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
-  "ch.qos.logback" % "logback-classic" % "1.2.3"
+  "ch.qos.logback" % "logback-classic" % "1.2.3",
+  "org.scalatest" %% "scalatest" % "3.2.2" % Test,
+  "com.typesafe.akka" %% "akka-testkit" % "2.6.8" % Test,
+  "org.scalatestplus" %% "mockito-3-4" % "3.2.3.0" % "test",
+  "org.scoverage" %% "scalac-scoverage-runtime" % "1.4.0"
 )
