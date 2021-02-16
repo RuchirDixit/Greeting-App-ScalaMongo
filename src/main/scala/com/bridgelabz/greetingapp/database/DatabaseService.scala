@@ -23,7 +23,7 @@ import org.mongodb.scala.bson.collection.immutable.Document
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import scala.concurrent.ExecutionContext
-object DatabaseService extends LazyLogging {
+class DatabaseService extends LazyLogging {
   val system = ActorSystemFactory.system
   implicit val executor: ExecutionContext = system.dispatcher
   /**
