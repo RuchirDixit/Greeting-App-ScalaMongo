@@ -16,7 +16,6 @@
 package com.bridgelabz.greetingapp.database
 
 import akka.Done
-import com.bridgelabz.greetingapp.Routes.system
 import com.bridgelabz.greetingapp.actors.ActorSystemFactory
 import com.bridgelabz.greetingapp.caseclasses.Greeting
 import com.typesafe.scalalogging.LazyLogging
