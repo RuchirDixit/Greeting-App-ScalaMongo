@@ -19,21 +19,23 @@ import com.bridgelabz.greetingapp.actors.ActorSystemFactory
 import com.bridgelabz.greetingapp.caseclasses.Greeting
 import org.scalatest.matchers.should
 import org.scalatest.wordspec.AnyWordSpec
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Success
-class GreetingAppDatabaseTest extends AnyWordSpec with should.Matchers {
+import org.scalatestplus.mockito.MockitoSugar
+import scala.concurrent.{ExecutionContext}
+class GreetingAppDatabaseTest extends AnyWordSpec with should.Matchers with MockitoSugar {
   val system = ActorSystemFactory.system
   implicit val executor: ExecutionContext = system.dispatcher
   "On Successful chat sent to group" should {
     "return Message exception group chat" in {
       val data = Greeting("Test","Name")
-      val status = DatabaseService.sendRequest(data)
+      val service = new DatabaseService
+      val status = service.sendRequest(data)
       status map { future => assert(future==true)}
     }
   }
   "On Successful chat sent to group" should {
     "return Message exception group chat 11" in {
-      val status = DatabaseService.getJson()
+      val service = new DatabaseService
+      val status = service.getJson()
       status map { future => assert(future==true)}
     }
   }
