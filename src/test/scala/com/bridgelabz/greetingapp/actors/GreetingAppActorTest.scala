@@ -16,7 +16,7 @@
 package com.bridgelabz.greetingapp.actors
 
 import akka.actor.Props
-import akka.testkit.ImplicitSender
+import akka.testkit.{ImplicitSender, TestProbe}
 import com.typesafe.scalalogging.LazyLogging
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
@@ -29,12 +29,14 @@ class GreetingAppActorTest extends
 AnyWordSpecLike
 with Matchers
 with BeforeAndAfterAll with LazyLogging{
-  val system = ActorSystemFactory.system
+  implicit val system = ActorSystemFactory.system
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   "Save to database actor" must {
     "expect response" in {
+      val probe = TestProbe()
       val saveToDatabaseActor = system.actorOf(Props[GreetingActor], "greetingActor")
-      saveToDatabaseActor ! "Hey"
+      probe.send(saveToDatabaseActor,"hey")
+      probe.expectNoMessage()
     }
   }
 }
