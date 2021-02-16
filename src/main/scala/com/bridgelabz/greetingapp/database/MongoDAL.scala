@@ -16,6 +16,7 @@
 package com.bridgelabz.greetingapp.database
 
 import akka.actor.ActorSystem
+import com.bridgelabz.greetingapp.actors.ActorSystemFactory
 import com.bridgelabz.greetingapp.caseclasses.Greeting
 import org.mongodb.scala.bson.codecs.Macros
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
@@ -26,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 object MongoDAL {
 
-  implicit val system = ActorSystem("HelloWorld")
+  implicit val system = ActorSystemFactory.system
   implicit val executor: ExecutionContext = system.dispatcher
   // MongoClient
   val mongoClient: MongoClient = MongoClient()
