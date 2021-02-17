@@ -22,6 +22,7 @@ class GreetingActor extends Actor with ActorLogging {
   override def receive: Receive = {
     case _ => log.info("Inside default")
               val service = new DatabaseService
+              // $COVERAGE-OFF$
               sender() ! service.getJson()
   }
 }
