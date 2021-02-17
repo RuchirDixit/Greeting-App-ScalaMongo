@@ -24,10 +24,10 @@ import scala.concurrent.{ExecutionContext}
 class GreetingAppDatabaseTest extends AnyWordSpec with should.Matchers with MockitoSugar {
   val system = ActorSystemFactory.system
   implicit val executor: ExecutionContext = system.dispatcher
+  val service = new DatabaseService
   "On Successful chat sent to group" should {
     "return Message exception group chat" in {
       val data = Greeting("Test","Name")
-      val service = new DatabaseService
       val status = service.sendRequest(data)
       status map { future => assert(future==true)}
     }
@@ -42,7 +42,7 @@ class GreetingAppDatabaseTest extends AnyWordSpec with should.Matchers with Mock
 
   "On Successful chat sent to group" should {
     "return Message exception group chat 1111" in {
-      val status = MongoDAL.fetchAllGreetings()
+      val status = service.fetchAllGreetings()
       status map { future => assert(future==true)}
     }
   }
