@@ -18,15 +18,16 @@ package com.bridgelabz.greetingapp.routes
 import akka.Done
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.{Directives, ExceptionHandler, Route}
-import com.bridgelabz.greetingapp.caseclasses.{Greeting, MyJsonProtocol}
-import com.bridgelabz.greetingapp.database.{DatabaseService, MongoDAL}
+import com.bridgelabz.greetingapp.caseclasses.{Greeting, GreetingAppJsonProtocol}
+import com.bridgelabz.greetingapp.database.{DatabaseService, DatabaseConfig}
 import com.thoughtworks.xstream.XStream
 import com.thoughtworks.xstream.io.xml.DomDriver
 import com.typesafe.scalalogging.LazyLogging
 import scala.concurrent.{Future}
 import scala.util.{Success}
 
-class UserManagementRoutes extends LazyLogging with Directives with MyJsonProtocol{
+class UserManagementRoutes extends LazyLogging with Directives with GreetingAppJsonProtocol{
+  val databaseService = new DatabaseService
   // Handling Arithmetic and Null Pointer Exceptions
   //$COVERAGE-OFF$
   val myExceptionHandler = ExceptionHandler {
@@ -76,7 +77,7 @@ class UserManagementRoutes extends LazyLogging with Directives with MyJsonProtoc
         get {
           concat(
             path("getJson") {
-              val greetingSeqFuture: Future[Seq[Greeting]] = MongoDAL.fetchAllGreetings()
+              val greetingSeqFuture: Future[Seq[Greeting]] = databaseService.fetchAllGreetings()
               complete(greetingSeqFuture)
             },
             /**
@@ -85,7 +86,7 @@ class UserManagementRoutes extends LazyLogging with Directives with MyJsonProtoc
              * @Return : Displays all the messages in XML format
              */
             path("getXML"){
-              val greetingSeqFuture = MongoDAL.fetchAllGreetings()
+              val greetingSeqFuture = databaseService.fetchAllGreetings()
               onComplete(greetingSeqFuture) {
                 case Success(data) =>
                   val xStream = new XStream(new DomDriver())
