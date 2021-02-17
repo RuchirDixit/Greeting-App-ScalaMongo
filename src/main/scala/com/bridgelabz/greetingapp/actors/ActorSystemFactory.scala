@@ -16,9 +16,7 @@
 package com.bridgelabz.greetingapp.actors
 
 import akka.actor.ActorSystem
-import com.bridgelabz.greetingapp.main.Main
 
 object ActorSystemFactory {
-  val actorName = Main.actorName
-  implicit val system = ActorSystem(actorName)
+  implicit val system = ActorSystem("GreetingAppActor")
 }
