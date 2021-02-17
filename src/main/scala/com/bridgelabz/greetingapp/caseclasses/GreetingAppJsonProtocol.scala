@@ -18,7 +18,7 @@ package com.bridgelabz.greetingapp.caseclasses
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import spray.json.DefaultJsonProtocol
 
-// To convert object into json format
+// To convert Greeting object into json format
 trait GreetingAppJsonProtocol extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val templateFormat = jsonFormat2(Greeting)
 }
