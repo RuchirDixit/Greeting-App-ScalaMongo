@@ -18,10 +18,11 @@ package com.bridgelabz.greetingapp.actors
 import akka.actor.{Actor, ActorLogging}
 import com.bridgelabz.greetingapp.database.DatabaseService
 
+// Actor to get json Data and return true on completion
 class GreetingActor extends Actor with ActorLogging {
   override def receive: Receive = {
     case _ => log.info("Inside default")
-      val service = new DatabaseService
+              val service = new DatabaseService
               sender() ! service.getJson()
   }
 }
