@@ -26,7 +26,6 @@ import org.mongodb.scala.{Document, MongoClient, MongoCollection, MongoDatabase}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait DatabaseConfig {
-
   implicit val system = ActorSystemFactory.system
   implicit val executor: ExecutionContext = system.dispatcher
   val host = sys.env("HOST")
@@ -36,20 +35,15 @@ trait DatabaseConfig {
   val mongoClient: MongoClient = MongoClient(url)
 
   val greetingCodecProvider = Macros.createCodecProvider[Greeting]()
-
   val codecRegistry = CodecRegistries.fromRegistries(
     CodecRegistries.fromProviders(greetingCodecProvider),
     DEFAULT_CODEC_REGISTRY
   )
 
   // Getting mongodb database
-  val mongoDatabase: MongoDatabase =
-    mongoClient
-      .getDatabase(sys.env("DATABASENAME"))
-      .withCodecRegistry(codecRegistry)
+  val mongoDatabase: MongoDatabase = mongoClient.getDatabase(sys.env("DATABASENAME")).withCodecRegistry(codecRegistry)
 
   // Getting mongodb collection
-  val greetingCollection: MongoCollection[Greeting] =
-    mongoDatabase.getCollection[Greeting]("greets")
+  val greetingCollection: MongoCollection[Greeting] = mongoDatabase.getCollection[Greeting]("greets")
 
 }
