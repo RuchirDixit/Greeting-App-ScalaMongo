@@ -32,11 +32,17 @@ with BeforeAndAfterAll with LazyLogging{
   implicit val system = ActorSystemFactory.system
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
   "Save to database actor" must {
-    "expect response" in {
+    "expect response mocking" in {
       val probe = TestProbe()
-      val saveToDatabaseActor = system.actorOf(Props[GreetingActor], "greetingActor")
+      val saveToDatabaseActor = system.actorOf(Props[GreetingActor], "greetingActorMock")
       probe.send(saveToDatabaseActor,"hey")
       probe.expectNoMessage()
+    }
+  }
+  "Save to database actor" must {
+    "expect response" in {
+      val saveToDatabaseActor = system.actorOf(Props[GreetingActor], "greetingActor")
+      saveToDatabaseActor ! "hey"
     }
   }
 }
