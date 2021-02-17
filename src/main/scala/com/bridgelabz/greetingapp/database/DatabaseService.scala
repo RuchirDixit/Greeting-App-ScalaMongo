@@ -16,16 +16,13 @@
 package com.bridgelabz.greetingapp.database
 
 import akka.Done
-import com.bridgelabz.greetingapp.actors.ActorSystemFactory
 import com.bridgelabz.greetingapp.caseclasses.Greeting
 import com.typesafe.scalalogging.LazyLogging
 import org.mongodb.scala.bson.collection.immutable.Document
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext
-class DatabaseService extends LazyLogging {
-  val system = ActorSystemFactory.system
-  implicit val executor: ExecutionContext = system.dispatcher
+
+class DatabaseService extends LazyLogging with DatabaseConfig {
   /**
    * Adds message and name to database and Future[Done]
    * @param greet : Data to be added into database
@@ -33,8 +30,8 @@ class DatabaseService extends LazyLogging {
    */
   def sendRequest(greet: Greeting) : Future[Done.type] = {
     logger.info("Sending request with object: " + greet)
-    val messageToBeAdded: Document = Document("msg" -> greet.msg, "name" -> greet.name)
-    val bindFuture = MongoDAL.collection.insertOne(messageToBeAdded).toFuture()
+    val greeting = Greeting(greet.msg,greet.name)
+    val bindFuture = greetingCollection.insertOne(greeting).toFuture()
     bindFuture.onComplete {
       case Success(_) => logger.info("Successfully Added!")
       case Failure(exception) => logger.error(exception.toString)
@@ -46,8 +43,16 @@ class DatabaseService extends LazyLogging {
    * Fetches all the messages in Json format
    * @return : Future[Seq[Document]]
    */
-  def getJson() : Future[Seq[Document]] = {
-    val future = MongoDAL.collection.find().toFuture()
+  def getJson() : Future[Seq[Greeting]] = {
+    val future = greetingCollection.find().toFuture()
     future
+  }
+
+  /**
+   * method to fetch all greetings
+   * @return : Future[Seq[Greeting]]
+   */
+  def fetchAllGreetings() : Future[Seq[Greeting]] = {
+    greetingCollection.find().toFuture()
   }
 }
