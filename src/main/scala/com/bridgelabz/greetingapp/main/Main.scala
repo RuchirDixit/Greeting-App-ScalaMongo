@@ -24,8 +24,9 @@ import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 // $COVERAGE-OFF$
 object Main extends App with LazyLogging{
-  private val host = sys.env("Host")
-  private val port = sys.env("Port_number").toInt
+  private val host = sys.env("HOST")
+  private val port = sys.env("PORT").toInt
+  val actorName = "GreetingAppActor"
   implicit val system = ActorSystemFactory.system
   var greetingActor = system.actorOf(Props[GreetingActor],"greetingActor")
   implicit val executor: ExecutionContext = system.dispatcher
