@@ -15,18 +15,15 @@
 // limitations under the License.
 package com.bridgelabz.greetingapp.database
 
-import akka.actor.ActorSystem
 import com.bridgelabz.greetingapp.actors.ActorSystemFactory
 import com.bridgelabz.greetingapp.caseclasses.Greeting
 import org.mongodb.scala.bson.codecs.Macros
 import org.mongodb.scala.bson.codecs.DEFAULT_CODEC_REGISTRY
 import org.bson.codecs.configuration.CodecRegistries
-import org.mongodb.scala.{Document, MongoClient, MongoCollection, MongoDatabase}
-
-import scala.concurrent.{ExecutionContext, Future}
+import org.mongodb.scala.{MongoClient, MongoCollection, MongoDatabase}
+import scala.concurrent.{ExecutionContext}
 
 trait DatabaseConfig {
-
   implicit val system = ActorSystemFactory.system
   implicit val executor: ExecutionContext = system.dispatcher
   val host = sys.env("HOST")
@@ -36,20 +33,15 @@ trait DatabaseConfig {
   val mongoClient: MongoClient = MongoClient(url)
 
   val greetingCodecProvider = Macros.createCodecProvider[Greeting]()
-
   val codecRegistry = CodecRegistries.fromRegistries(
     CodecRegistries.fromProviders(greetingCodecProvider),
     DEFAULT_CODEC_REGISTRY
   )
 
   // Getting mongodb database
-  val mongoDatabase: MongoDatabase =
-    mongoClient
-      .getDatabase(sys.env("DATABASENAME"))
-      .withCodecRegistry(codecRegistry)
+  val mongoDatabase: MongoDatabase = mongoClient.getDatabase(sys.env("DATABASENAME")).withCodecRegistry(codecRegistry)
 
   // Getting mongodb collection
-  val greetingCollection: MongoCollection[Greeting] =
-    mongoDatabase.getCollection[Greeting]("greets")
+  val greetingCollection: MongoCollection[Greeting] = mongoDatabase.getCollection[Greeting]("greets")
 
 }
